@@ -6,17 +6,6 @@ import { Jumbotron, Button, ButtonGroup, ButtonToolbar, Panel } from 'react-boot
 import Option from './option.js';
 import { Questions } from '../../imports/collections/questions';
 
-/*Questions.insert({
-  room: "kl4t6",
-  question: 'Was ist das?',
-  options: [
-      "Haus",
-      "Baum",
-      "See",
-      "Berg"
-  ]
-});
-*/
 class Question extends Component {
   constructor(props) {
     super(props);
@@ -47,10 +36,9 @@ class Question extends Component {
               <p className="lead">{data.question}</p>
               <hr className="my-4"></hr>
               <ButtonGroup vertical block>
-                  <Option  name={1} disabled={this.state.disabled} onClick={this.click} key={data._id + "0"} option={data.options[0]}/>
-                  <Option  name={2} disabled={this.state.disabled} onClick={this.click} key={data._id + "1"} option={data.options[1]}/>
-                  <Option  name={3} disabled={this.state.disabled} onClick={this.click} key={data._id + "2"} option={data.options[2]}/>
-                  <Option  name={4} disabled={this.state.disabled} onClick={this.click} key={data._id + "3"} option={data.options[3]}/>
+                  {data.options.map((option, i) =>
+                    <Option  name={i+1} disabled={this.state.disabled} onClick={this.click} key={option.toString()+i} option={option}/>
+                  )}
               </ButtonGroup>
           </Jumbotron>
       );

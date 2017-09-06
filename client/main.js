@@ -1,61 +1,90 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import Blaze from 'meteor/gadicc:blaze-react-component'
 import { Accounts } from 'meteor/accounts-base';
 import { Mongo } from 'meteor/mongo';
 import { Jumbotron, Panel } from 'react-bootstrap';
+import Question from './components/question';
+import StatContainer from './components/stats';
 import { createContainer } from 'meteor/react-meteor-data';
-
-import Question from './components/question'
+import {
+  BrowserRouter as Router,
+  Route,
+  Link,
+  Redirect,
+  browserHistory
+} from 'react-router-dom'
 
 T9n.setLanguage('de');
 Accounts.ui.config({
   passwordSignupFields: 'USERNAME_ONLY'
 });
 
-Accounts.onLogin(function(user){
-  ReactDOM.render(<App />, document.querySelector('.container'));
-});
-Accounts.onLogout(function(user){
-  ReactDOM.render(<AppLogout />, document.querySelector('.container'));
-});
-
 const App = (props) => {
-  if (Meteor.userId()){
     return (
-      <div>
+      <Jumbotron>
         <Blaze template="loginButtons" />
         <Question />
-      </div>
+      </Jumbotron>
     );
-  }
-  else {
-    return (
-      <div>
-        <br></br>
-        <Panel header="Warnung" bsStyle="danger">
-          Bitte Einloggen!
-          <br></br>
-          <Blaze template="loginButtons" />
-        </Panel>
-      </div>
-    );
-  }
 };
 
-const AppLogout = (props) => {
-    return (
-      <div>
-        <br></br>
-        <Panel header="Warnung" bsStyle="danger">
-          Bitte Einloggen!
-          <br></br>
-          <Blaze template="loginButtons" />
-        </Panel>
-      </div>
-    );
+const Login = (props) => {
+  return (
+    <Jumbotron>
+       <br></br>
+       <Panel header="Warnung" bsStyle="danger">
+           Bitte Einloggen!
+           <hr></hr>
+           <Blaze template="loginButtons" />
+       </Panel>
+    </Jumbotron>
+  );
 };
+
+const Admin = (props) => {
+  return (
+    <div>
+      <StatContainer />
+    </div>
+  );
+};
+
+class Routes extends Component {
+  constructor(props) {
+    super(props);
+  };
+  render(){
+    return(
+      <Router history={browserHistory}>
+        <ul>
+            <Route path="/admin" component={Admin} />
+            <Route exact path="/login" render={() => (
+              !!this.props.user ? (
+                <Redirect to="/"/>
+              ) : (
+                <Login />
+              )
+            )}/>
+            <Route exact path="/" render={() => (
+              !!this.props.user ? (
+                <App />
+              ) : (
+                <Redirect to="/login"/>
+              )
+            )}/>
+        </ul>
+      </Router>
+    );
+  }
+}
+
+const RoutesContainer = createContainer(() => {
+  return {
+    user: Meteor.userId(),
+  };
+},Routes);
 
 Meteor.startup(() => {
-  ReactDOM.render(<App />, document.querySelector('.container'));
+  ReactDOM.render(<RoutesContainer />, document.querySelector('.container'));
 });
